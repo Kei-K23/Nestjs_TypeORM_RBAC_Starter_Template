@@ -1,0 +1,93 @@
+import {
+  IsEmail,
+  IsString,
+  IsNotEmpty,
+  IsOptional,
+  IsEnum,
+  IsNumber,
+  IsUrl,
+  MaxLength,
+  Min,
+} from 'class-validator';
+import {
+  LeadStageType,
+  CustomerType,
+  CategoryType,
+  LeadSourceType,
+} from '../entities/lead.entity';
+
+export class CreateLeadDto {
+  @IsString({ message: 'Customer full name must be a string' })
+  @IsNotEmpty({ message: 'Customer full name is required' })
+  @MaxLength(255, {
+    message: 'Customer full name must not exceed 255 characters',
+  })
+  customerFullName: string;
+
+  @IsOptional()
+  @IsString({ message: 'Customer job title must be a string' })
+  @MaxLength(255, {
+    message: 'Customer job title must not exceed 255 characters',
+  })
+  customerJobTitle?: string;
+
+  @IsString({ message: 'Company must be a string' })
+  @IsNotEmpty({ message: 'Company is required' })
+  @MaxLength(255, { message: 'Company must not exceed 255 characters' })
+  company: string;
+
+  @IsOptional()
+  @IsString({ message: 'Industry must be a string' })
+  @MaxLength(255, { message: 'Industry must not exceed 255 characters' })
+  industry?: string;
+
+  @IsEmail({}, { message: 'Please provide a valid email address' })
+  @IsNotEmpty({ message: 'Email is required' })
+  email: string;
+
+  @IsString({ message: 'Phone must be a string' })
+  @IsNotEmpty({ message: 'Phone is required' })
+  @MaxLength(20, { message: 'Phone must not exceed 20 characters' })
+  phone: string;
+
+  @IsOptional()
+  @IsNumber({}, { message: 'Deal value must be a number' })
+  @Min(0, { message: 'Deal value must be positive' })
+  dealValue?: number;
+
+  @IsOptional()
+  @IsEnum(LeadStageType, { message: 'Invalid lead stage value' })
+  leadStage?: LeadStageType;
+
+  @IsEnum(CategoryType, { message: 'Invalid category value' })
+  @IsNotEmpty({ message: 'Category is required' })
+  category: CategoryType;
+
+  @IsEnum(CustomerType, { message: 'Invalid customer type value' })
+  @IsNotEmpty({ message: 'Customer type is required' })
+  customerType: CustomerType;
+
+  @IsString({ message: 'Service description must be a string' })
+  @IsNotEmpty({ message: 'Service description is required' })
+  serviceDescription: string;
+
+  @IsOptional()
+  @IsEnum(LeadSourceType, { message: 'Invalid lead source value' })
+  leadSource?: LeadSourceType;
+
+  @IsNumber({}, { message: 'Assigned to must be a number' })
+  @IsNotEmpty({ message: 'Assigned to is required' })
+  assignedTo: number;
+
+  @IsOptional()
+  @IsString({ message: 'Note must be a string' })
+  note?: string;
+
+  @IsOptional()
+  @IsString({ message: 'Address must be a string' })
+  address?: string;
+
+  @IsOptional()
+  @IsUrl({}, { message: 'Website link must be a valid URL' })
+  websiteLink?: string;
+}

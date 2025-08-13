@@ -6,6 +6,7 @@ import { AppService } from './app.service';
 import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
 import { CommonModule } from './common';
+import { LeadsModule } from './leads/leads.module';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { CommonModule } from './common';
     }),
     AuthModule,
     UserModule,
+    LeadsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -27,6 +27,9 @@ export enum UserDepartmentType {
   OPERATIONS = 'operations',
 }
 
+import { Lead } from 'src/leads/entities/lead.entity';
+import { LeadActivity } from 'src/leads/entities/lead-activity.entity';
+
 @Entity('users')
 export class User {
   @PrimaryGeneratedColumn()
@@ -69,4 +72,10 @@ export class User {
 
   @UpdateDateColumn()
   updatedAt: Date;
+
+  @OneToMany(() => Lead, (lead) => lead.assignedUser)
+  assignedLeads: Lead[];
+
+  @OneToMany(() => LeadActivity, (activity) => activity.user)
+  leadActivities: LeadActivity[];
 }
