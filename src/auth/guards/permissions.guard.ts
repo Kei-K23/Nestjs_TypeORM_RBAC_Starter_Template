@@ -62,7 +62,8 @@ export class PermissionsGuard implements CanActivate {
 
     return !!user?.role?.rolePermissions?.some(
       (rolePermission) =>
-        rolePermission.permission.module === requiredPermission.module &&
+        rolePermission.permission.module ===
+          requiredPermission.module.toString() &&
         rolePermission.permission.permission === requiredPermissionType,
     );
   }
