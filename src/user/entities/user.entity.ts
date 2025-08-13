@@ -1,3 +1,4 @@
+import { Exclude } from 'class-transformer';
 import { RefreshToken } from 'src/auth/entities/refresh-token.entity';
 import { Role } from 'src/auth/entities/role.entity';
 import {
@@ -11,6 +12,21 @@ import {
   OneToMany,
 } from 'typeorm';
 
+export enum UserStatusType {
+  ACTIVE = 'active',
+  INACTIVE = 'inactive',
+  PENDING = 'pending',
+}
+
+export enum UserDepartmentType {
+  SALES = 'sales',
+  MARKETING = 'marketing',
+  FINANCE = 'finance',
+  HR = 'HR',
+  IT = 'IT',
+  OPERATIONS = 'operations',
+}
+
 @Entity('users')
 export class User {
   @PrimaryGeneratedColumn()
@@ -22,13 +38,23 @@ export class User {
   @Column()
   fullName: string;
 
+  @Column({ nullable: true })
+  phone: string;
+
   @Column()
+  @Exclude()
   password: string;
 
-  @Column({ default: true })
-  isActive: boolean;
+  @Column({ default: UserStatusType.ACTIVE })
+  status: UserStatusType;
+
+  @Column({ default: UserDepartmentType.IT })
+  department: UserDepartmentType;
 
   @Column({ nullable: true })
+  note: string;
+
+  @Column()
   roleId: number;
 
   @ManyToOne(() => Role, (role) => role.users)

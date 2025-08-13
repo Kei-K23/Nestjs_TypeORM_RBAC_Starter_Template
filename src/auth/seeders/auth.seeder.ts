@@ -5,7 +5,11 @@ import * as bcrypt from 'bcryptjs';
 import { Role } from '../entities/role.entity';
 import { Permission, PermissionType } from '../entities/permission.entity';
 import { RolePermission } from '../entities/role-permission.entity';
-import { User } from 'src/user/entities/user.entity';
+import {
+  User,
+  UserDepartmentType,
+  UserStatusType,
+} from 'src/user/entities/user.entity';
 
 @Injectable()
 export class AuthSeeder {
@@ -111,7 +115,9 @@ export class AuthSeeder {
         fullName: 'Admin',
         password: hashedPassword,
         roleId: adminRole.id,
-        isActive: true,
+        status: UserStatusType.ACTIVE,
+        department: UserDepartmentType.OPERATIONS,
+        note: 'System Admin User',
       });
 
       await this.userRepository.save(admin);

@@ -5,8 +5,10 @@ import {
   MinLength,
   MaxLength,
   IsOptional,
-  IsBoolean,
+  IsEnum,
+  IsNumber,
 } from 'class-validator';
+import { UserDepartmentType, UserStatusType } from '../entities/user.entity';
 
 export class CreateUserDto {
   @IsEmail({}, { message: 'Please provide a valid email address' })
@@ -25,6 +27,24 @@ export class CreateUserDto {
   password: string;
 
   @IsOptional()
-  @IsBoolean({ message: 'isActive must be a boolean value' })
-  isActive?: boolean;
+  @IsString({ message: 'Status must be a string' })
+  @IsEnum(UserStatusType, { message: 'Invalid status value' })
+  status?: UserStatusType;
+
+  @IsOptional()
+  @IsString({ message: 'Phone must be a string' })
+  phone?: string;
+
+  @IsNotEmpty({ message: 'Department is required' })
+  @IsString({ message: 'Department must be a string' })
+  @IsEnum(UserDepartmentType, { message: 'Invalid department value' })
+  department?: UserDepartmentType;
+
+  @IsOptional()
+  @IsString({ message: 'Note must be a string' })
+  note?: string;
+
+  @IsNotEmpty({ message: 'Role ID is required' })
+  @IsNumber({}, { message: 'Role ID must be a number' })
+  roleId: number;
 }

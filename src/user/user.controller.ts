@@ -15,6 +15,7 @@ import { UserService } from './user.service';
 import { CreateUserDto, UpdateUserDto } from './dto';
 import { ResponseUtil, ApiResponse } from '../common';
 import { User } from './entities/user.entity';
+import { FilterUserDto } from './dto/filter-user.dto';
 
 @Controller('api/users')
 @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }))
@@ -23,25 +24,21 @@ export class UserController {
 
   @Get()
   async findAll(
-    @Query('page') page: number = 1,
-    @Query('limit') limit: number = 10,
+    @Query() filterDto: FilterUserDto,
   ): Promise<ApiResponse<User[]>> {
-    const [users, total] = await Promise.all([
-      this.userService.findAll(page, limit),
-      this.userService.count(),
-    ]);
+    const { data, total } = await this.userService.findAll(filterDto);
 
     return ResponseUtil.paginated(
-      users,
+      data,
       total,
-      page,
-      limit,
+      filterDto.page || 1,
+      filterDto.limit || 10,
       'Users retrieved successfully',
     );
   }
 
   @Get(':id')
-  async findOne(@Param('id') id: string): Promise<ApiResponse<User>> {
+  async findOne(@Param('id') id: string) {
     const user = await this.userService.findOne(+id);
 
     if (!user) {
