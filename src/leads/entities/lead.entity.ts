@@ -103,6 +103,21 @@ export class Lead {
   @OneToMany(() => LeadActivity, (activity) => activity.lead)
   activities: LeadActivity[];
 
+  @Column({ default: 0 })
+  leadStageDurationInDays: number;
+
+  @Column({ default: 0 })
+  quotationStageDurationInDays: number;
+
+  @Column({ default: 0 })
+  negotiationStageDurationInDays: number;
+
+  @Column({ default: 0 })
+  closeWonStageDurationInDays: number;
+
+  @CreateDateColumn()
+  latestChangedStageAt: Date;
+
   @CreateDateColumn()
   createdAt: Date;
 

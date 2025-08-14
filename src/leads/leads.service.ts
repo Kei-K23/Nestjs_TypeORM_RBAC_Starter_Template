@@ -267,6 +267,8 @@ export class LeadsService {
       throw new NotFoundException(`Lead with ID ${id} not found`);
     }
 
+    const oldStage = lead.leadStage;
+
     // If stage is changing, we need to handle position reordering
     if (
       updateKanbanDto.leadStage &&
@@ -291,7 +293,31 @@ export class LeadsService {
         lead.position = maxPosition + 1;
       }
 
+      // Calculate duration for old stage
+      const oldStageDuration =
+        new Date().getTime() - new Date(lead.latestChangedStageAt).getTime();
+
       lead.leadStage = updateKanbanDto.leadStage;
+      lead.latestChangedStageAt = new Date();
+
+      // Add duration to old stage
+      if (oldStage === LeadStageType.LEAD) {
+        lead.leadStageDurationInDays = Math.round(
+          oldStageDuration / (1000 * 60 * 60 * 24),
+        );
+      } else if (oldStage === LeadStageType.QUOTATION) {
+        lead.quotationStageDurationInDays = Math.round(
+          oldStageDuration / (1000 * 60 * 60 * 24),
+        );
+      } else if (oldStage === LeadStageType.NEGOTIATION) {
+        lead.negotiationStageDurationInDays = Math.round(
+          oldStageDuration / (1000 * 60 * 60 * 24),
+        );
+      } else if (oldStage === LeadStageType.CLOSE_WON) {
+        lead.closeWonStageDurationInDays = Math.round(
+          oldStageDuration / (1000 * 60 * 60 * 24),
+        );
+      }
     } else if (
       updateKanbanDto.position !== undefined &&
       updateKanbanDto.position !== lead.position
