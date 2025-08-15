@@ -5,9 +5,10 @@ import { UserService } from './user.service';
 import { UserController } from './user.controller';
 import { SalesUser } from './entities/sales-user.entity';
 import { Role } from 'src/auth/entities/role.entity';
+import { Customer } from 'src/customer/entities/customer.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([User, SalesUser, Role])],
+  imports: [TypeOrmModule.forFeature([User, SalesUser, Role, Customer])],
   providers: [UserService],
   controllers: [UserController],
   exports: [UserService],

@@ -4,12 +4,12 @@ import {
   Post,
   Body,
   Param,
-  Put,
   Delete,
   ValidationPipe,
   UsePipes,
   NotFoundException,
   Query,
+  Patch,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto, UpdateUserDto } from './dto';
@@ -56,7 +56,7 @@ export class UserController {
     return ResponseUtil.created(user, 'User created successfully');
   }
 
-  @Put(':id')
+  @Patch(':id')
   async update(
     @Param('id') id: string,
     @Body() updateUserDto: UpdateUserDto,

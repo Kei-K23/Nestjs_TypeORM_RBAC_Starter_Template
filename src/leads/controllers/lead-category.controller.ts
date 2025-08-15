@@ -4,11 +4,11 @@ import {
   Post,
   Body,
   Param,
-  Put,
   Delete,
   Query,
   ValidationPipe,
   UsePipes,
+  Patch,
 } from '@nestjs/common';
 import { LeadCategoryService } from '../services/lead-category.service';
 import { ResponseUtil, ApiResponse } from '../../common';
@@ -57,7 +57,7 @@ export class LeadCategoryController {
     return ResponseUtil.success(category, 'Lead category created successfully');
   }
 
-  @Put(':id')
+  @Patch(':id')
   async update(
     @Param('id') id: string,
     @Body() updateLeadCategoryDto: UpdateLeadCategoryDto,

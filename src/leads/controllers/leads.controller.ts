@@ -10,6 +10,7 @@ import {
   UsePipes,
   NotFoundException,
   Query,
+  Patch,
 } from '@nestjs/common';
 import { LeadsService } from '../services/leads.service';
 import {
@@ -39,15 +40,15 @@ export class LeadsController {
 
     if (filterDto.getAll) {
       return ResponseUtil.success(leads, 'Leads retrieved successfully');
-    } else {
-      return ResponseUtil.paginated(
-        leads,
-        total,
-        filterDto.page || 1,
-        filterDto.limit || 10,
-        'Leads retrieved successfully',
-      );
     }
+
+    return ResponseUtil.paginated(
+      leads,
+      total,
+      filterDto.page || 1,
+      filterDto.limit || 10,
+      'Leads retrieved successfully',
+    );
   }
 
   @Get(':id')
@@ -69,7 +70,7 @@ export class LeadsController {
     return ResponseUtil.success(lead, 'Lead created successfully');
   }
 
-  @Put(':id')
+  @Patch(':id')
   async updateLead(
     @Param('id') id: string,
     @Body() updateLeadDto: UpdateLeadDto,

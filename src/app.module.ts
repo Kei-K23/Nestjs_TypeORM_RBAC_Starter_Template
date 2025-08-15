@@ -7,6 +7,7 @@ import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
 import { CommonModule } from './common';
 import { LeadsModule } from './leads/leads.module';
+import { CustomerModule } from './customer/customer.module';
 
 @Module({
   imports: [
@@ -32,6 +33,7 @@ import { LeadsModule } from './leads/leads.module';
     AuthModule,
     UserModule,
     LeadsModule,
+    CustomerModule,
   ],
   controllers: [AppController],
   providers: [AppService],

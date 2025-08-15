@@ -29,6 +29,7 @@ export enum UserDepartmentType {
 
 import { Lead } from 'src/leads/entities/lead.entity';
 import { LeadActivity } from 'src/leads/entities/lead-activity.entity';
+import { Customer } from 'src/customer/entities/customer.entity';
 
 @Entity('users')
 export class User {
@@ -75,6 +76,9 @@ export class User {
 
   @OneToMany(() => Lead, (lead) => lead.assignedUser)
   assignedLeads: Lead[];
+
+  @OneToMany(() => Customer, (customer) => customer.assignedUser)
+  assignedCustomers: Customer[];
 
   @OneToMany(() => LeadActivity, (activity) => activity.user)
   leadActivities: LeadActivity[];

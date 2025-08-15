@@ -4,12 +4,12 @@ import {
   Post,
   Body,
   Param,
-  Put,
   Delete,
   Query,
   UseGuards,
   NotFoundException,
   ParseIntPipe,
+  Patch,
 } from '@nestjs/common';
 import { RoleService } from '../services/role.service';
 import { CreateRoleDto, UpdateRoleDto } from '../dto';
@@ -95,7 +95,7 @@ export class RoleController {
     return ResponseUtil.created(role, 'Role created successfully');
   }
 
-  @Put(':id')
+  @Patch(':id')
   @RequirePermissions({
     module: PermissionModule.ROLES,
     permission: 'update',

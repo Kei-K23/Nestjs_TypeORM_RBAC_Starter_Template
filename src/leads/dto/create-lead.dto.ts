@@ -31,10 +31,10 @@ export class CreateLeadDto {
   })
   customerJobTitle?: string;
 
-  @IsString({ message: 'Company must be a string' })
-  @IsNotEmpty({ message: 'Company is required' })
-  @MaxLength(255, { message: 'Company must not exceed 255 characters' })
-  company: string;
+  @IsString({ message: 'Company name must be a string' })
+  @IsNotEmpty({ message: 'Company name is required' })
+  @MaxLength(255, { message: 'Company name must not exceed 255 characters' })
+  companyName: string;
 
   @IsOptional()
   @IsString({ message: 'Industry must be a string' })

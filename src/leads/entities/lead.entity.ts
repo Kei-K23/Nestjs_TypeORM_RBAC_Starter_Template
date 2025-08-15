@@ -47,7 +47,7 @@ export class Lead {
   customerJobTitle: string;
 
   @Column({ nullable: false })
-  company: string;
+  companyName: string;
 
   @Column({ nullable: true })
   industry: string;

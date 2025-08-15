@@ -70,7 +70,7 @@ export class LeadsService {
     if (search) {
       findOptions.where = [
         { ...whereConditions, customerFullName: Like(`%${search}%`) },
-        { ...whereConditions, company: Like(`%${search}%`) },
+        { ...whereConditions, companyName: Like(`%${search}%`) },
         { ...whereConditions, email: Like(`%${search}%`) },
       ];
     } else {
