@@ -1,8 +1,8 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, Like, FindManyOptions, FindOptionsWhere } from 'typeorm';
-import { Lead, LeadStageType } from './entities/lead.entity';
-import { LeadActivity } from './entities/lead-activity.entity';
+import { Lead, LeadStageType } from '../entities/lead.entity';
+import { LeadActivity } from '../entities/lead-activity.entity';
 import { User, UserDepartmentType } from 'src/user/entities/user.entity';
 import {
   CreateLeadDto,
@@ -12,7 +12,8 @@ import {
   UpdateLeadActivityDto,
   FilterLeadActivityDto,
   UpdateLeadKanbanDto,
-} from './dto';
+} from '../dto';
+import { LeadCategory } from '../entities/lead-category.entity';
 
 @Injectable()
 export class LeadsService {
@@ -21,6 +22,8 @@ export class LeadsService {
     private leadRepository: Repository<Lead>,
     @InjectRepository(LeadActivity)
     private leadActivityRepository: Repository<LeadActivity>,
+    @InjectRepository(LeadCategory)
+    private leadCategoryRepository: Repository<LeadCategory>,
     @InjectRepository(User)
     private userRepository: Repository<User>,
   ) {}
@@ -28,32 +31,37 @@ export class LeadsService {
   // Lead CRUD Operations
   async findAllLeads(
     filterDto: FilterLeadDto,
-  ): Promise<{ leads: Lead[]; total: number }> {
+  ): Promise<{ leads: Lead[]; total: number; getAll?: boolean }> {
     const {
       page = 1,
       limit = 10,
       search,
       leadStage,
       customerType,
-      category,
-      leadSource,
+      categoryId,
       assignedTo,
       industry,
+      leadSource,
+      getAll,
     } = filterDto;
     const skip = (page - 1) * limit;
 
     const whereConditions: FindOptionsWhere<Lead> = {};
     const findOptions: FindManyOptions<Lead> = {
-      skip,
-      take: limit,
       order: { createdAt: 'DESC' },
-      relations: ['assignedUser'],
+      relations: ['assignedUser', 'category'],
     };
+
+    // Only apply pagination if getAll is NOT true
+    if (!getAll) {
+      findOptions.skip = skip;
+      findOptions.take = limit;
+    }
 
     // Apply filters
     if (leadStage) whereConditions.leadStage = leadStage;
     if (customerType) whereConditions.customerType = customerType;
-    if (category) whereConditions.category = category;
+    if (categoryId) whereConditions.categoryId = categoryId;
     if (leadSource) whereConditions.leadSource = leadSource;
     if (assignedTo) whereConditions.assignedTo = assignedTo;
     if (industry) whereConditions.industry = Like(`%${industry}%`);
@@ -70,13 +78,13 @@ export class LeadsService {
     }
 
     const [leads, total] = await this.leadRepository.findAndCount(findOptions);
-    return { leads, total };
+    return { leads, total, getAll };
   }
 
   async findOneLead(id: number): Promise<Lead | null> {
     return this.leadRepository.findOne({
       where: { id },
-      relations: ['assignedUser', 'activities', 'activities.user'],
+      relations: ['assignedUser', 'activities', 'category', 'activities.user'],
     });
   }
 
@@ -89,6 +97,17 @@ export class LeadsService {
     if (!assignedUser) {
       throw new NotFoundException(
         `User with ID ${createLeadDto.assignedTo} not found`,
+      );
+    }
+
+    // Validate category exists
+    const category = await this.leadCategoryRepository.findOne({
+      where: { id: createLeadDto.categoryId },
+    });
+
+    if (!category) {
+      throw new NotFoundException(
+        `Category with ID ${createLeadDto.categoryId} not found`,
       );
     }
 
@@ -107,10 +126,11 @@ export class LeadsService {
 
   async updateLead(id: number, updateLeadDto: UpdateLeadDto): Promise<Lead> {
     const lead = await this.findOneLead(id);
-
     if (!lead) {
       throw new NotFoundException('Lead not found');
     }
+    // Get the old lead stage
+    const oldLeadStage = lead?.leadStage;
 
     if (updateLeadDto.assignedTo) {
       // Check if assigned user exists
@@ -123,7 +143,51 @@ export class LeadsService {
       }
     }
 
+    if (updateLeadDto.categoryId) {
+      // Check if category exists
+      const category = await this.leadCategoryRepository.findOne({
+        where: { id: updateLeadDto.categoryId },
+      });
+
+      if (!category) {
+        throw new NotFoundException(
+          `Category with ID ${updateLeadDto.categoryId} not found`,
+        );
+      }
+    }
+
     Object.assign(lead, updateLeadDto);
+    if (updateLeadDto.leadStage) {
+      if (oldLeadStage !== updateLeadDto.leadStage) {
+        // Update the lead stage duration
+        // Calculate duration for old stage
+        const oldStageDuration =
+          new Date().getTime() - new Date(lead.latestChangedStageAt).getTime();
+
+        lead.leadStage = updateLeadDto.leadStage;
+        lead.latestChangedStageAt = new Date();
+
+        // Add duration to old stage
+        if (oldLeadStage === LeadStageType.LEAD) {
+          lead.leadStageDurationInDays = Math.round(
+            oldStageDuration / (1000 * 60 * 60 * 24),
+          );
+        } else if (oldLeadStage === LeadStageType.QUOTATION) {
+          lead.quotationStageDurationInDays = Math.round(
+            oldStageDuration / (1000 * 60 * 60 * 24),
+          );
+        } else if (oldLeadStage === LeadStageType.NEGOTIATION) {
+          lead.negotiationStageDurationInDays = Math.round(
+            oldStageDuration / (1000 * 60 * 60 * 24),
+          );
+        } else if (oldLeadStage === LeadStageType.CLOSE_WON) {
+          lead.closeWonStageDurationInDays = Math.round(
+            oldStageDuration / (1000 * 60 * 60 * 24),
+          );
+        }
+      }
+    }
+
     return this.leadRepository.save(lead);
   }
 

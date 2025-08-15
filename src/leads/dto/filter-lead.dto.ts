@@ -1,25 +1,13 @@
-import { IsOptional, IsString, IsEnum, IsNumber, Min } from 'class-validator';
+import { IsOptional, IsString, IsEnum, IsNumber } from 'class-validator';
 import { Type } from 'class-transformer';
 import {
   LeadStageType,
   CustomerType,
-  CategoryType,
   LeadSourceType,
 } from '../entities/lead.entity';
+import { PaginationFilterDto } from 'src/common/dots/pagination-filter.dto';
 
-export class FilterLeadDto {
-  @IsOptional()
-  @Type(() => Number)
-  @IsNumber({}, { message: 'Page must be a number' })
-  @Min(1, { message: 'Page must be at least 1' })
-  page?: number = 1;
-
-  @IsOptional()
-  @Type(() => Number)
-  @IsNumber({}, { message: 'Limit must be a number' })
-  @Min(1, { message: 'Limit must be at least 1' })
-  limit?: number = 10;
-
+export class FilterLeadDto extends PaginationFilterDto {
   @IsOptional()
   @IsString({ message: 'Search must be a string' })
   search?: string;
@@ -33,8 +21,9 @@ export class FilterLeadDto {
   customerType?: CustomerType;
 
   @IsOptional()
-  @IsEnum(CategoryType, { message: 'Invalid category value' })
-  category?: CategoryType;
+  @Type(() => Number)
+  @IsNumber({}, { message: 'Category ID must be a number' })
+  categoryId?: number;
 
   @IsOptional()
   @IsEnum(LeadSourceType, { message: 'Invalid lead source value' })

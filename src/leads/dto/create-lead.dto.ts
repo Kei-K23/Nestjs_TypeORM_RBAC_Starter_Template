@@ -8,11 +8,11 @@ import {
   IsUrl,
   MaxLength,
   Min,
+  IsPositive,
 } from 'class-validator';
 import {
   LeadStageType,
   CustomerType,
-  CategoryType,
   LeadSourceType,
 } from '../entities/lead.entity';
 
@@ -59,9 +59,9 @@ export class CreateLeadDto {
   @IsEnum(LeadStageType, { message: 'Invalid lead stage value' })
   leadStage?: LeadStageType;
 
-  @IsEnum(CategoryType, { message: 'Invalid category value' })
-  @IsNotEmpty({ message: 'Category is required' })
-  category: CategoryType;
+  @IsNumber()
+  @IsPositive()
+  categoryId: number;
 
   @IsEnum(CustomerType, { message: 'Invalid customer type value' })
   @IsNotEmpty({ message: 'Customer type is required' })

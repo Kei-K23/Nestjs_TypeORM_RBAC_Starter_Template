@@ -10,6 +10,7 @@ import {
 } from 'typeorm';
 import { User } from 'src/user/entities/user.entity';
 import { LeadActivity } from './lead-activity.entity';
+import { LeadCategory } from './lead-category.entity';
 
 export enum LeadStageType {
   LEAD = 'lead',
@@ -22,12 +23,6 @@ export enum LeadStageType {
 export enum CustomerType {
   NEW = 'new',
   EXISTING = 'existing',
-}
-
-export enum CategoryType {
-  ENTERPRISE_SOFTWARE = 'enterprise software',
-  STARTUP_PACKAGE = 'startup package',
-  CUSTOM_DEVELOPMENT = 'custom development',
 }
 
 export enum LeadSourceType {
@@ -73,7 +68,7 @@ export class Lead {
   position: number;
 
   @Column({ nullable: false })
-  category: CategoryType;
+  categoryId: number;
 
   @Column({ nullable: false })
   customerType: CustomerType;
@@ -95,6 +90,10 @@ export class Lead {
 
   @Column({ nullable: true })
   websiteLink: string;
+
+  @ManyToOne(() => LeadCategory, (category) => category.leads)
+  @JoinColumn({ name: 'categoryId' })
+  category: LeadCategory;
 
   @ManyToOne(() => User, (user) => user.assignedLeads)
   @JoinColumn({ name: 'assignedTo' })

@@ -11,7 +11,7 @@ import {
   NotFoundException,
   Query,
 } from '@nestjs/common';
-import { LeadsService } from './leads.service';
+import { LeadsService } from '../services/leads.service';
 import {
   CreateLeadDto,
   UpdateLeadDto,
@@ -20,10 +20,10 @@ import {
   UpdateLeadActivityDto,
   FilterLeadActivityDto,
   UpdateLeadKanbanDto,
-} from './dto';
-import { ResponseUtil, ApiResponse } from '../common';
-import { Lead } from './entities/lead.entity';
-import { LeadActivity } from './entities/lead-activity.entity';
+} from '../dto';
+import { ResponseUtil, ApiResponse } from '../../common';
+import { Lead } from '../entities/lead.entity';
+import { LeadActivity } from '../entities/lead-activity.entity';
 
 @Controller('api/leads')
 @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }))
@@ -37,13 +37,17 @@ export class LeadsController {
   ): Promise<ApiResponse<Lead[]>> {
     const { leads, total } = await this.leadsService.findAllLeads(filterDto);
 
-    return ResponseUtil.paginated(
-      leads,
-      total,
-      filterDto.page || 1,
-      filterDto.limit || 10,
-      'Leads retrieved successfully',
-    );
+    if (filterDto.getAll) {
+      return ResponseUtil.success(leads, 'Leads retrieved successfully');
+    } else {
+      return ResponseUtil.paginated(
+        leads,
+        total,
+        filterDto.page || 1,
+        filterDto.limit || 10,
+        'Leads retrieved successfully',
+      );
+    }
   }
 
   @Get(':id')
