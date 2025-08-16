@@ -25,6 +25,7 @@ import {
 import { ResponseUtil, ApiResponse } from '../../common';
 import { Lead } from '../entities/lead.entity';
 import { LeadActivity } from '../entities/lead-activity.entity';
+import { Customer } from 'src/customer/entities/customer.entity';
 
 @Controller('api/leads')
 @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }))
@@ -86,7 +87,6 @@ export class LeadsController {
     return ResponseUtil.success(null, 'Lead deleted successfully');
   }
 
-  // Lead activity endpoints
   @Get('activities/all')
   async findAllActivities(
     @Query() filterDto: FilterLeadActivityDto,
@@ -139,15 +139,6 @@ export class LeadsController {
     return ResponseUtil.success(null, 'Lead activity deleted successfully');
   }
 
-  // Utility endpoints
-  @Get('user/:userId')
-  async getLeadsByUser(
-    @Param('userId') userId: string,
-  ): Promise<ApiResponse<Lead[]>> {
-    const leads = await this.leadsService.getLeadsByUser(+userId);
-    return ResponseUtil.success(leads, 'User leads retrieved successfully');
-  }
-
   // Kanban endpoints
   @Put(':id/kanban')
   async updateLeadKanban(
@@ -167,6 +158,18 @@ export class LeadsController {
     return ResponseUtil.success(
       leadsByStage,
       'Kanban board data retrieved successfully',
+    );
+  }
+
+  // Convert from lead to customer
+  @Post()
+  async convertToCustomer(
+    @Param('id') id: string,
+  ): Promise<ApiResponse<Customer>> {
+    const customer = await this.leadsService.convertToCustomer(+id);
+    return ResponseUtil.success(
+      customer,
+      'Successfully convert from lead to customer',
     );
   }
 }

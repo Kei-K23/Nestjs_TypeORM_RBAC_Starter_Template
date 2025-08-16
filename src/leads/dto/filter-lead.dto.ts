@@ -26,6 +26,11 @@ export class FilterLeadDto extends PaginationFilterDto {
   categoryId?: number;
 
   @IsOptional()
+  @Type(() => Number)
+  @IsNumber({}, { message: 'Industry ID must be a number' })
+  industryId?: number;
+
+  @IsOptional()
   @IsEnum(LeadSourceType, { message: 'Invalid lead source value' })
   leadSource?: LeadSourceType;
 

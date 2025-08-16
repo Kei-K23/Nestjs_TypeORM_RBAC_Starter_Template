@@ -11,6 +11,7 @@ import {
 import { User } from 'src/user/entities/user.entity';
 import { LeadActivity } from './lead-activity.entity';
 import { LeadCategory } from './lead-category.entity';
+import { CustomerIndustry } from 'src/customer/entities/customer-industry.entity';
 
 export enum LeadStageType {
   LEAD = 'lead',
@@ -49,8 +50,15 @@ export class Lead {
   @Column({ nullable: false })
   companyName: string;
 
-  @Column({ nullable: true })
-  industry: string;
+  @ManyToOne(
+    () => CustomerIndustry,
+    (customerIndustry) => customerIndustry.leads,
+  )
+  @JoinColumn({ name: 'industryId' })
+  industry: CustomerIndustry;
+
+  @Column({ nullable: false })
+  industryId: number;
 
   @Column({ nullable: false })
   email: string;

@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { FindManyOptions, FindOptionsWhere, Like, Repository } from 'typeorm';
 import { CreateUserDto, UpdateUserDto } from './dto';
@@ -132,8 +136,13 @@ export class UserService {
     const savedUser = await this.userRepository.save(user);
 
     if (createUserDto.department === UserDepartmentType.SALES) {
+      if (!createUserDto.monthlyTarget) {
+        throw new BadRequestException(
+          'Monthly target value is required for sale person user creation',
+        );
+      }
       const salesUser = this.salesUserRepository.create({
-        monthlyTarget: 10000, // TODO: Change to real user input
+        monthlyTarget: createUserDto.monthlyTarget,
         user: savedUser,
       });
       await this.salesUserRepository.save(salesUser);

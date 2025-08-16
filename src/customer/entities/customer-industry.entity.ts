@@ -7,6 +7,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { Customer } from './customer.entity';
+import { Lead } from 'src/leads/entities/lead.entity';
 
 @Entity('customer_industries')
 export class CustomerIndustry {
@@ -21,6 +22,9 @@ export class CustomerIndustry {
 
   @OneToMany(() => Customer, (customer) => customer.industry)
   customers: Customer[];
+
+  @OneToMany(() => Lead, (lead) => lead.industry)
+  leads: Lead[];
 
   @CreateDateColumn()
   createdAt: Date;

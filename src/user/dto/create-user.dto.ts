@@ -47,4 +47,8 @@ export class CreateUserDto {
   @IsNotEmpty({ message: 'Role ID is required' })
   @IsNumber({}, { message: 'Role ID must be a number' })
   roleId: number;
+
+  @IsOptional()
+  @IsNumber({}, { message: 'Monthly target must be a number' })
+  monthlyTarget?: number;
 }

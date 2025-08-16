@@ -15,6 +15,7 @@ import {
   CustomerType,
   LeadSourceType,
 } from '../entities/lead.entity';
+import { Type } from 'class-transformer';
 
 export class CreateLeadDto {
   @IsString({ message: 'Customer full name must be a string' })
@@ -36,10 +37,10 @@ export class CreateLeadDto {
   @MaxLength(255, { message: 'Company name must not exceed 255 characters' })
   companyName: string;
 
-  @IsOptional()
-  @IsString({ message: 'Industry must be a string' })
-  @MaxLength(255, { message: 'Industry must not exceed 255 characters' })
-  industry?: string;
+  @IsNumber({}, { message: 'Industry ID must be a number' })
+  @Type(() => Number)
+  @Min(1, { message: 'Industry ID must be at least 1' })
+  industryId: number;
 
   @IsEmail({}, { message: 'Please provide a valid email address' })
   @IsNotEmpty({ message: 'Email is required' })

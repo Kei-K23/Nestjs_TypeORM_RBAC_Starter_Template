@@ -8,9 +8,20 @@ import { LeadActivity } from './entities/lead-activity.entity';
 import { User } from 'src/user/entities/user.entity';
 import { LeadCategory } from './entities/lead-category.entity';
 import { LeadCategoryService } from './services/lead-category.service';
+import { CustomerIndustry } from 'src/customer/entities/customer-industry.entity';
+import { Customer } from 'src/customer/entities/customer.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Lead, LeadActivity, User, LeadCategory])],
+  imports: [
+    TypeOrmModule.forFeature([
+      Lead,
+      LeadActivity,
+      User,
+      LeadCategory,
+      CustomerIndustry,
+      Customer,
+    ]),
+  ],
   controllers: [LeadsController, LeadCategoryController],
   providers: [LeadsService, LeadCategoryService],
   exports: [LeadsService, LeadCategoryService],

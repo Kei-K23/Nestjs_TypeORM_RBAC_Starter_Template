@@ -90,11 +90,11 @@ export class LeadCategoryService {
       updateLeadCategoryDto.name &&
       updateLeadCategoryDto.name !== category.name
     ) {
-      const existingCategory = await this.leadCategoryRepository.findOne({
+      const category = await this.leadCategoryRepository.findOne({
         where: { name: updateLeadCategoryDto.name },
       });
 
-      if (existingCategory) {
+      if (category) {
         throw new ConflictException(
           `Lead category with name '${updateLeadCategoryDto.name}' already exists`,
         );

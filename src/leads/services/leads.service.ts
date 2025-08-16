@@ -14,6 +14,8 @@ import {
   UpdateLeadKanbanDto,
 } from '../dto';
 import { LeadCategory } from '../entities/lead-category.entity';
+import { CustomerIndustry } from 'src/customer/entities/customer-industry.entity';
+import { Customer } from 'src/customer/entities/customer.entity';
 
 @Injectable()
 export class LeadsService {
@@ -24,8 +26,12 @@ export class LeadsService {
     private leadActivityRepository: Repository<LeadActivity>,
     @InjectRepository(LeadCategory)
     private leadCategoryRepository: Repository<LeadCategory>,
+    @InjectRepository(CustomerIndustry)
+    private customerIndustryRepository: Repository<CustomerIndustry>,
     @InjectRepository(User)
     private userRepository: Repository<User>,
+    @InjectRepository(Customer)
+    private customerRepository: Repository<Customer>,
   ) {}
 
   // Lead CRUD Operations
@@ -43,13 +49,14 @@ export class LeadsService {
       industry,
       leadSource,
       getAll,
+      industryId,
     } = filterDto;
     const skip = (page - 1) * limit;
 
     const whereConditions: FindOptionsWhere<Lead> = {};
     const findOptions: FindManyOptions<Lead> = {
       order: { createdAt: 'DESC' },
-      relations: ['assignedUser', 'category'],
+      relations: ['assignedUser', 'category', 'industry'],
     };
 
     // Only apply pagination if getAll is NOT true
@@ -64,7 +71,7 @@ export class LeadsService {
     if (categoryId) whereConditions.categoryId = categoryId;
     if (leadSource) whereConditions.leadSource = leadSource;
     if (assignedTo) whereConditions.assignedTo = assignedTo;
-    if (industry) whereConditions.industry = Like(`%${industry}%`);
+    if (industry) whereConditions.industryId = industryId;
 
     // Apply search (search in customerFullName, company, email)
     if (search) {
@@ -84,7 +91,13 @@ export class LeadsService {
   async findOneLead(id: number): Promise<Lead | null> {
     return this.leadRepository.findOne({
       where: { id },
-      relations: ['assignedUser', 'activities', 'category', 'activities.user'],
+      relations: [
+        'assignedUser',
+        'industry',
+        'activities',
+        'category',
+        'activities.user',
+      ],
     });
   }
 
@@ -111,6 +124,17 @@ export class LeadsService {
       );
     }
 
+    // Validate industry exists
+    const industry = await this.customerIndustryRepository.findOne({
+      where: { id: createLeadDto.industryId },
+    });
+
+    if (!industry) {
+      throw new NotFoundException(
+        `Industry with ID ${createLeadDto.industryId} not found`,
+      );
+    }
+
     // Get the next position for the lead stage
     const maxPosition = await this.getMaxPositionInStage(
       createLeadDto.leadStage || LeadStageType.LEAD,
@@ -122,6 +146,46 @@ export class LeadsService {
     });
 
     return await this.leadRepository.save(lead);
+  }
+
+  async convertToCustomer(leadId: number): Promise<Customer> {
+    // Find the lead with all necessary relations
+    const lead = await this.leadRepository.findOne({
+      where: { id: leadId },
+      relations: ['category', 'assignedUser'],
+    });
+
+    if (!lead) {
+      throw new NotFoundException(`Lead with ID ${leadId} not found`);
+    }
+
+    // Check if lead stage is 'close won'
+    if (lead.leadStage !== LeadStageType.CLOSE_WON) {
+      throw new Error(
+        `Lead must be in 'close won' stage to convert to customer. Current stage: ${lead.leadStage}`,
+      );
+    }
+
+    // Map lead data to customer data
+    const customerData = {
+      fullName: lead.customerFullName,
+      companyName: lead.companyName,
+      phone: lead.phone,
+      email: lead.email,
+      address: lead.address,
+      industryId: lead.industryId,
+      totalValue: lead.dealValue || 0,
+      website: lead.websiteLink,
+      assignedTo: lead.assignedTo,
+      notes: `Converted from lead ID: ${lead.id}. Service Description: ${lead.serviceDescription}${lead.note ? `. Additional notes: ${lead.note}` : ''}`,
+    };
+
+    // Create the customer and save
+    const customer = this.customerRepository.create(customerData);
+    await this.customerRepository.save(customer);
+
+    //TODO: After converted to customer, do i need to delete the lead
+    return customer;
   }
 
   async updateLead(id: number, updateLeadDto: UpdateLeadDto): Promise<Lead> {
@@ -152,6 +216,19 @@ export class LeadsService {
       if (!category) {
         throw new NotFoundException(
           `Category with ID ${updateLeadDto.categoryId} not found`,
+        );
+      }
+    }
+
+    if (updateLeadDto.industryId) {
+      // Check if industry exists
+      const industry = await this.customerIndustryRepository.findOne({
+        where: { id: updateLeadDto.industryId },
+      });
+
+      if (!industry) {
+        throw new NotFoundException(
+          `Industry with ID ${updateLeadDto.industryId} not found`,
         );
       }
     }
