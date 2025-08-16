@@ -162,7 +162,7 @@ export class LeadsController {
   }
 
   // Convert from lead to customer
-  @Post()
+  @Post(':id/convert-to-customer')
   async convertToCustomer(
     @Param('id') id: string,
   ): Promise<ApiResponse<Customer>> {

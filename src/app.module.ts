@@ -8,6 +8,7 @@ import { AuthModule } from './auth/auth.module';
 import { CommonModule } from './common';
 import { LeadsModule } from './leads/leads.module';
 import { CustomerModule } from './customer/customer.module';
+import { QuotationModule } from './quotation/quotation.module';
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { CustomerModule } from './customer/customer.module';
     UserModule,
     LeadsModule,
     CustomerModule,
+    QuotationModule,
   ],
   controllers: [AppController],
   providers: [AppService],

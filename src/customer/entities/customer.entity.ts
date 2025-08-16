@@ -6,9 +6,11 @@ import {
   UpdateDateColumn,
   ManyToOne,
   JoinColumn,
+  OneToMany,
 } from 'typeorm';
 import { CustomerIndustry } from './customer-industry.entity';
 import { User } from '../../user/entities/user.entity';
+import { Quotation } from 'src/quotation/entities/quotation.entity';
 
 export enum CustomerStatus {
   ACTIVE = 'active',
@@ -65,6 +67,11 @@ export class Customer {
 
   @Column({ nullable: true })
   assignedTo: number;
+
+  @OneToMany(() => Quotation, (quotation) => quotation.customer, {
+    nullable: true,
+  })
+  quotations: Quotation[];
 
   @Column({ nullable: true })
   tags: string; // comma separated values
