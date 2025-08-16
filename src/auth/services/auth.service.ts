@@ -70,6 +70,9 @@ export class AuthService {
     const accessToken = this.jwtService.sign(payload);
     const refreshToken = await this.generateRefreshToken(user.id);
 
+    // Revoke all previous refresh token here
+    await this.revokeAllUserTokens(user.id);
+
     return {
       accessToken,
       refreshToken,
@@ -93,8 +96,18 @@ export class AuthService {
       ],
     });
 
-    if (!refreshToken || refreshToken.expiresAt < new Date()) {
-      throw new UnauthorizedException('Invalid or expired refresh token');
+    if (!refreshToken) {
+      throw new UnauthorizedException('Invalid refresh token');
+    }
+
+    if (refreshToken.expiresAt < new Date()) {
+      // Revoke the refresh token
+      refreshToken.isRevoked = true;
+      await this.refreshTokenRepository.save(refreshToken);
+
+      throw new UnauthorizedException(
+        'Expired refresh token! Please login again',
+      );
     }
 
     const payload: JwtPayload = {
